@@ -8,29 +8,31 @@ import (
 	"net/http"
 	"os"
 	"watch-later/internal/storage"
-
-	"github.com/joho/godotenv"
+	env "watch-later/pkg/env-loader"
+	"watch-later/pkg/logs"
 )
 
 func init() {
-	ex, _ := os.Getwd()
+	if err := env.MustLoad(); err != nil {
+		log.Fatal("The application can't load .env file.")
+	}
 
-	err := godotenv.Load(fmt.Sprintf("%s/configs/.env", ex))
-
-	if err != nil {
-		log.Panic("The application can't load .env file.")
+	if err := logs.Initialize(); err != nil {
+		log.Fatal("The applicaiton can't load log level from .env file.")
 	}
 }
 
 func RunApplication() {
+	slog.Debug("Connection to the db...")
 	db, err := storage.NewStorage().Postgres.NewConnection()
 	defer func(db *sql.DB) {
 		db.Close()
 	}(db)
 
 	if err != nil {
-		panic(err.Error())
+		log.Fatal(err.Error())
 	}
+	slog.Debug("Successfully connected to the db.")
 
 	server := &http.Server{
 		Addr: fmt.Sprintf(":%s", os.Getenv("SERVER_PORT")),
