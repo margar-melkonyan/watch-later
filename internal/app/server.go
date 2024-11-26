@@ -7,6 +7,8 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"watch-later/internal/handler/middleware"
+	"watch-later/internal/router"
 	"watch-later/internal/storage"
 	env "watch-later/pkg/env-loader"
 	"watch-later/pkg/logs"
@@ -34,14 +36,19 @@ func RunApplication() {
 	}
 	slog.Debug("Successfully connected to the db.")
 
+	stack := middleware.Stack(
+		middleware.Logging,
+	)
 	server := &http.Server{
-		Addr: fmt.Sprintf(":%s", os.Getenv("SERVER_PORT")),
+		Addr:    fmt.Sprintf(":%s", os.Getenv("SERVER_PORT")),
+		Handler: stack(router.NewRouter()),
 	}
 
 	slog.Info(fmt.Sprintf(
 		"The server running on port: %s",
 		os.Getenv("SERVER_PORT"),
 	))
-
-	server.ListenAndServe()
+	if err := server.ListenAndServe(); err != nil {
+		log.Fatal(err.Error())
+	}
 }
