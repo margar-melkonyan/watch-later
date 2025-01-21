@@ -1,4 +1,4 @@
-module watch-later
+module github.com/margar-melkonyan/watch-later
 
 go 1.22.9
 
