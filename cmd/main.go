@@ -1,6 +1,6 @@
 package main
 
-import "watch-later/internal/app"
+import "github.com/margar-melkonyan/watch-later.git/internal/app"
 
 func main() {
 	app.RunApplication()
