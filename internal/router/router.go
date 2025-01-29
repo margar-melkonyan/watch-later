@@ -9,7 +9,7 @@ func NewRouter() *http.ServeMux {
 	api := http.NewServeMux()
 	v1 := http.NewServeMux()
 
-	v1.Handle("/auth", http.StripPrefix("/auth", authRoutes()))
+	v1.Handle("/auth/", http.StripPrefix("/auth", authRoutes()))
 	v1.Handle("/notifications/", http.StripPrefix("/notifications", notificationsRoutes()))
 	v1.Handle("/categories/", http.StripPrefix("/categories", categoriesRoutes()))
 	v1.Handle("/platforms/", http.StripPrefix("/platforms", platofmrsRoutes()))
