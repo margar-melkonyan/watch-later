@@ -3,13 +3,13 @@ package app
 import (
 	"database/sql"
 	"fmt"
+	"github.com/margar-melkonyan/watch-later.git/internal/repository"
+	env "github.com/margar-melkonyan/watch-later.git/pkg/env-loader"
+	"github.com/margar-melkonyan/watch-later.git/pkg/logs"
 	"log"
 	"log/slog"
 	"net/http"
 	"os"
-
-	env "github.com/margar-melkonyan/watch-later.git/pkg/env-loader"
-	"github.com/margar-melkonyan/watch-later.git/pkg/logs"
 
 	"github.com/margar-melkonyan/watch-later.git/internal/handler/middleware"
 	"github.com/margar-melkonyan/watch-later.git/internal/router"
@@ -56,6 +56,15 @@ func RunApplication() {
 		db.Close()
 	}(db)
 
+	userRepository := repository.NewUserRepository(db)
+	userRepository.Create(&repository.User{
+		Nickname:   "12332",
+		Firstname:  "test",
+		Lastname:   "234",
+		Patronymic: "123",
+		Email:      "23",
+		Password:   "3434",
+	})
 	if err != nil {
 		log.Fatal(err.Error())
 	}
