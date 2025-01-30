@@ -39,7 +39,7 @@ func NewUserRepository(db *sql.DB) *UserRepository {
 }
 
 func (r *UserRepository) getUserByQuery(query string, arg interface{}) (*User, error) {
-	user := &User{}
+	var user User
 	err := r.db.QueryRow(query, arg).
 		Scan(&user.ID,
 			&user.Nickname,
@@ -61,26 +61,26 @@ func (r *UserRepository) getUserByQuery(query string, arg interface{}) (*User, e
 		return nil, err
 	}
 
-	return user, nil
+	return &user, nil
 }
 
 func (r *UserRepository) Get(id uint64) (*User, error) {
 	return r.getUserByQuery(
-		"SELECT * FROM users WHERE id=$1",
+		"SELECT * FROM users WHERE id=$1 AND deleted_at IS NULL",
 		id,
 	)
 }
 
 func (r *UserRepository) GetByNickname(nickname string) (*User, error) {
 	return r.getUserByQuery(
-		"SELECT * FROM users WHERE nickname=$1",
+		"SELECT * FROM users WHERE nickname=$1 AND deleted_at IS NULL",
 		nickname,
 	)
 }
 
 func (r *UserRepository) GetByEmail(email string) (*User, error) {
 	return r.getUserByQuery(
-		"SELECT * FROM users WHERE email=$1",
+		"SELECT * FROM users WHERE email=$1 AND deleted_at IS NULL",
 		email,
 	)
 }
@@ -107,7 +107,7 @@ func (r *UserRepository) Create(user *User) error {
 	}
 
 	if rowsAffected == 0 {
-		return errors.New("Nothing to create")
+		return errors.New("user was not created")
 	}
 
 	return nil
@@ -115,7 +115,7 @@ func (r *UserRepository) Create(user *User) error {
 
 func (r *UserRepository) Update(user *User, id uint64) error {
 	result, err := r.db.Exec(
-		"UPDATE users SET nickname=$1, first_name=$2, last_name=$3, patronymic_name=$4, email=$5, password=$6, updated_at=now()   WHERE id=$7",
+		"UPDATE users SET nickname=$1, first_name=$2, last_name=$3, patronymic_name=$4, email=$5, password=$6, updated_at=now() WHERE id=$7 AND deleted_at IS NULL",
 		user.Nickname,
 		user.Firstname,
 		user.Lastname,
@@ -134,8 +134,8 @@ func (r *UserRepository) Update(user *User, id uint64) error {
 		return err
 	}
 
-	if rowsAffected != 1 {
-		return fmt.Errorf("expected 1 row affected, got %d", rowsAffected)
+	if rowsAffected == 0 {
+		return fmt.Errorf("user was not updated")
 	}
 
 	return nil
@@ -153,7 +153,7 @@ func (r *UserRepository) Delete(id uint64) error {
 	}
 
 	if rowsAffected == 0 {
-		return errors.New(fmt.Sprintf("user with %d not found", id))
+		return errors.New(fmt.Sprintf("user was not deleted"))
 	}
 
 	return nil
