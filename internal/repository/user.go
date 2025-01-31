@@ -87,7 +87,8 @@ func (r *UserRepository) GetByEmail(email string) (*User, error) {
 
 func (r *UserRepository) Create(user *User) error {
 	result, err := r.db.Exec(
-		"INSERT INTO users (nickname, first_name, last_name, patronymic_name, email, password, refresh_token) VALUES ($1, $2, $3, $4, $5, $6, $7)",
+		`INSERT INTO users (nickname, first_name, last_name, patronymic_name, email, password, refresh_token) 
+			   VALUES ($1, $2, $3, $4, $5, $6, $7)`,
 		user.Nickname,
 		user.Firstname,
 		user.Lastname,
@@ -115,7 +116,9 @@ func (r *UserRepository) Create(user *User) error {
 
 func (r *UserRepository) Update(user *User, id uint64) error {
 	result, err := r.db.Exec(
-		"UPDATE users SET nickname=$1, first_name=$2, last_name=$3, patronymic_name=$4, email=$5, password=$6, updated_at=now() WHERE id=$7 AND deleted_at IS NULL",
+		`UPDATE users 
+			   SET nickname=$1, first_name=$2, last_name=$3, patronymic_name=$4, email=$5, password=$6, updated_at=now() 
+               WHERE id=$7 AND deleted_at IS NULL`,
 		user.Nickname,
 		user.Firstname,
 		user.Lastname,

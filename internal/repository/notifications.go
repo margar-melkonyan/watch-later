@@ -49,7 +49,8 @@ func (payload *Payload) Scan(value interface{}) error {
 
 func (r *NotificationRepository) GetUnreadNotifications(userID uint64) (*[]Notification, error) {
 	var notifications []Notification
-	query := "SELECT id, user_id, payload, created_at FROM notifications WHERE user_id=$1 AND read_at IS NULL ORDER BY created_at DESC"
+	query := `SELECT id, user_id, payload, created_at FROM notifications 
+              WHERE user_id=$1 AND read_at IS NULL ORDER BY created_at DESC`
 	rows, err := r.db.Query(query, userID)
 	if err != nil {
 		return nil, err
