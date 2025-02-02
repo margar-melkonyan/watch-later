@@ -1,10 +1,12 @@
 package users
 
+import "github.com/margar-melkonyan/watch-later.git/internal/repository"
+
 type AuthService struct {
-	repository UserRepository,
+	repository repository.UserRepository
 }
 
-func NewAuthService (repository UserRepository) *AuthService {
+func NewAuthService(repository repository.UserRepository) *AuthService {
 	return &AuthService{
 		repository: repository,
 	}

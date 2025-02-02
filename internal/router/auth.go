@@ -1,17 +1,21 @@
 package router
 
 import (
+	"database/sql"
+	"github.com/margar-melkonyan/watch-later.git/internal/repository"
 	"net/http"
 )
 
-func authRoutes() *http.ServeMux {
+func authRoutes(db *sql.DB) *http.ServeMux {
+	userRepo := repository.NewUserRepository(db)
+	userService := service.NewUserService(userRepo)
 	auth := http.NewServeMux()
 
-	auth.HandleFunc("GET /current-user", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("test"))
-	})
 	auth.HandleFunc("POST /sign-in", func(w http.ResponseWriter, r *http.Request) {})
 	auth.HandleFunc("POST /sign-up", func(w http.ResponseWriter, r *http.Request) {})
+	auth.HandleFunc("GET /current-user", func(w http.ResponseWriter, r *http.Request) {})
+	auth.HandleFunc("GET /sign-out", func(w http.ResponseWriter, r *http.Request) {})
+	auth.HandleFunc("POST /refresh-token", func(w http.ResponseWriter, r *http.Request) {})
 
 	return auth
 }
