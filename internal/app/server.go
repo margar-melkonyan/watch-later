@@ -3,8 +3,6 @@ package app
 import (
 	"database/sql"
 	"fmt"
-	env "github.com/margar-melkonyan/watch-later.git/pkg/env-loader"
-	"github.com/margar-melkonyan/watch-later.git/pkg/logs"
 	"log"
 	"log/slog"
 	"net/http"
@@ -13,6 +11,8 @@ import (
 	"github.com/margar-melkonyan/watch-later.git/internal/handler/middleware"
 	"github.com/margar-melkonyan/watch-later.git/internal/router"
 	"github.com/margar-melkonyan/watch-later.git/internal/storage"
+	env "github.com/margar-melkonyan/watch-later.git/pkg/env-loader"
+	"github.com/margar-melkonyan/watch-later.git/pkg/logs"
 )
 
 func init() {
@@ -46,7 +46,7 @@ func RunApplication() {
 	)
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%s", os.Getenv("SERVER_PORT")),
-		Handler: stack(router.NewRouter()),
+		Handler: stack(router.NewRouter(db)),
 	}
 
 	slog.Info(fmt.Sprintf(

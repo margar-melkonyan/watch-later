@@ -1,8 +1,11 @@
 package router
 
-import "net/http"
+import (
+	"database/sql"
+	"net/http"
+)
 
-func notificationsRoutes() *http.ServeMux {
+func notificationsRoutes(db *sql.DB) *http.ServeMux {
 	notifications := http.NewServeMux()
 
 	notifications.HandleFunc("GET /unread", func(w http.ResponseWriter, r *http.Request) {})

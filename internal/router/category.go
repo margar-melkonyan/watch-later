@@ -1,8 +1,11 @@
 package router
 
-import "net/http"
+import (
+	"database/sql"
+	"net/http"
+)
 
-func categoriesRoutes() *http.ServeMux {
+func categoriesRoutes(db *sql.DB) *http.ServeMux {
 	categories := http.NewServeMux()
 
 	categories.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {})

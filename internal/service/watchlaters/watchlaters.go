@@ -1,21 +1,29 @@
 package watchlaters
 
-type WatchLatersService struct {
-	repository WatchLatersRepository
+import "github.com/margar-melkonyan/watch-later.git/internal/repository"
+
+type WatchLaterService struct {
+	repository repository.WatchLaterRepository
 }
 
-func NewWatchLatersService(repository WatchLatersRepository) *WatchLatersService {
-	return &WatchLatersService{
+func NewWatchLaterService(repository repository.WatchLaterRepository) *WatchLaterService {
+	return &WatchLaterService{
 		repository: repository,
 	}
 }
 
-func (s *WatchLatersService) GetWatchLater(perPage uint16) ([]WatchLater, error) {}
+func (s *WatchLaterService) GetWatchLater(perPage uint16) ([]*repository.WatchLater, error) {
+	return nil, nil
+}
 
-func (s *WatchLatersService) StoreWatchLater() error {}
+func (s *WatchLaterService) StoreWatchLater() error {
+	return nil
+}
 
-func (s *WatchLatersService) UpdateWatchLater(id uint64) error {}
+func (s *WatchLaterService) UpdateWatchLater(id uint64) error {
+	return nil
+}
 
-func (s *WatchLatersService) DeleteWatchLater(id uint64) error {}
-
-func (s *WatchLatersService) DeleteWatchLaters(id uint64) error {}
+func (s *WatchLaterService) DeleteWatchLater(id uint64) error {
+	return nil
+}

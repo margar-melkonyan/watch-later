@@ -35,8 +35,8 @@ type MediaRepository struct {
 	db *sql.DB
 }
 
-func NewMediaRepository(db *sql.DB) MediaRepository {
-	return MediaRepository{
+func NewMediaRepository(db *sql.DB) *MediaRepository {
+	return &MediaRepository{
 		db: db,
 	}
 }
@@ -56,7 +56,7 @@ func (properties *MediaProperty) Scan(value interface{}) error {
 
 func (r *MediaRepository) Get(id uint64) (*Media, error) {
 	var media Media
-	query := "SELECT * FROM media WHERE id = $1"
+	query := "SELECT * FROM media WHERE id = $1 AND deleted_at IS NULL"
 	row := r.db.QueryRow(query, id)
 	err := row.Scan(
 		&media.ID,
@@ -81,7 +81,7 @@ func (r *MediaRepository) Get(id uint64) (*Media, error) {
 
 func (r *MediaRepository) GetAll(modelID uint64, modelType string) (*[]Media, error) {
 	var medias []Media
-	query := "SELECT * FROM media WHERE model_id = $1 AND model_type = $2"
+	query := "SELECT * FROM media WHERE model_id = $1 AND model_type = $2 AND deleted_at IS NULL"
 	rows, err := r.db.Query(query, modelID, modelType)
 	if err != nil {
 		return nil, err

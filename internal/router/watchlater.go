@@ -1,8 +1,11 @@
 package router
 
-import "net/http"
+import (
+	"database/sql"
+	"net/http"
+)
 
-func watchLatersRoutes() *http.ServeMux {
+func watchLatersRoutes(db *sql.DB) *http.ServeMux {
 	watchLaters := http.NewServeMux()
 
 	watchLaters.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {})
