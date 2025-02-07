@@ -1,4 +1,4 @@
-package users
+package service
 
 import "github.com/margar-melkonyan/watch-later.git/internal/repository"
 

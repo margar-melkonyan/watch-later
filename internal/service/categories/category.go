@@ -3,10 +3,10 @@ package service
 import "github.com/margar-melkonyan/watch-later.git/internal/repository"
 
 type CategoryService struct {
-	repository repository.CategoryRepository
+	repository *repository.CategoryRepository
 }
 
-func NewCategoryService(repository repository.CategoryRepository) *CategoryService {
+func NewCategoryService(repository *repository.CategoryRepository) *CategoryService {
 	return &CategoryService{
 		repository: repository,
 	}

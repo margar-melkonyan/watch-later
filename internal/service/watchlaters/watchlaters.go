@@ -1,12 +1,12 @@
-package watchlaters
+package service
 
 import "github.com/margar-melkonyan/watch-later.git/internal/repository"
 
 type WatchLaterService struct {
-	repository repository.WatchLaterRepository
+	repository *repository.WatchLaterRepository
 }
 
-func NewWatchLaterService(repository repository.WatchLaterRepository) *WatchLaterService {
+func NewWatchLaterService(repository *repository.WatchLaterRepository) *WatchLaterService {
 	return &WatchLaterService{
 		repository: repository,
 	}
