@@ -13,11 +13,22 @@ func NewCategoryService(repository *repository.CategoryRepository) *CategoryServ
 }
 
 func (s *CategoryService) GetCategories() ([]*repository.Category, error) {
-	return nil, nil
+	categories, err := s.repository.GetAll()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return categories, nil
 }
 
 func (s *CategoryService) GetCategory(id uint64) (*repository.Category, error) {
-	return nil, nil
+	category, err := s.repository.Get(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return category, nil
 }
 
 func (s *CategoryService) CreateCategory() error {

@@ -8,12 +8,12 @@ import (
 )
 
 type Category struct {
-	ID        int64
-	UserID    int64
-	Name      string
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt *time.Time
+	ID        int64      `json:"id"`
+	UserID    int64      `json:"user_id"`
+	Name      string     `json:"name"`
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"-"`
+	DeletedAt *time.Time `json:"-"`
 }
 
 type CategoryRepositoryInterface interface {
@@ -35,7 +35,7 @@ func NewCategoryRepository(db *sql.DB) *CategoryRepository {
 	}
 }
 
-func (r *CategoryRepository) Get(id int64) (*Category, error) {
+func (r *CategoryRepository) Get(id uint64) (*Category, error) {
 	var category Category
 	query := "SELECT id, name, user_id FROM categories WHERE id=$1 AND deleted_at IS NULL"
 	row := r.db.QueryRow(query, id)
@@ -50,7 +50,7 @@ func (r *CategoryRepository) Get(id int64) (*Category, error) {
 
 func (r *CategoryRepository) GetAll() ([]*Category, error) {
 	var categories []*Category
-	query := "SELECT id, name, user_id FROM categories WHERE deleted_at IS NULL"
+	query := "SELECT id, name, user_id, created_at FROM categories WHERE deleted_at IS NULL"
 	rows, err := r.db.Query(query)
 	if err != nil {
 		return nil, err
@@ -59,7 +59,12 @@ func (r *CategoryRepository) GetAll() ([]*Category, error) {
 
 	for rows.Next() {
 		var category Category
-		err = rows.Scan(&category.ID, &category.Name, &category.UserID)
+		err = rows.Scan(
+			&category.ID,
+			&category.Name,
+			&category.UserID,
+			&category.CreatedAt,
+		)
 		if err != nil {
 			return nil, err
 		}
