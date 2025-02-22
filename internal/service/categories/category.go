@@ -1,6 +1,8 @@
 package service
 
-import "github.com/margar-melkonyan/watch-later.git/internal/repository"
+import (
+	"github.com/margar-melkonyan/watch-later.git/internal/repository"
+)
 
 type CategoryService struct {
 	repository *repository.CategoryRepository
@@ -31,14 +33,18 @@ func (s *CategoryService) GetCategory(id uint64) (*repository.Category, error) {
 	return category, nil
 }
 
-func (s *CategoryService) CreateCategory() error {
-	return nil
+func (s *CategoryService) CreateCategory(category *repository.Category) error {
+	return s.repository.Create(category)
 }
 
-func (s *CategoryService) UpdateCategory() error {
-	return nil
+func (s *CategoryService) UpdateCategory(category *repository.Category, id uint64) error {
+	return s.repository.Update(category, id)
 }
 
 func (s *CategoryService) DeleteCategory(id uint64) error {
-	return nil
+	return s.repository.Delete(id)
+}
+
+func (s *CategoryService) RestoreCategory(id uint64) error {
+	return s.repository.Restore(id)
 }
