@@ -17,7 +17,7 @@ type Category struct {
 }
 
 type CategoryRepositoryInterface interface {
-	Get(id int64) (*Category, error)
+	Get(id uint64) (*Category, error)
 	GetAll() ([]*Category, error)
 	GetUserCategoriesList(userId uint64) ([]*Category, error)
 	Create(category *Category) error
