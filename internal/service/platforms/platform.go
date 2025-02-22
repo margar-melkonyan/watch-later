@@ -1,12 +1,12 @@
-package platforms
+package service
 
 import "github.com/margar-melkonyan/watch-later.git/internal/repository"
 
 type PlatformService struct {
-	repository repository.PlatformRepository
+	repository *repository.PlatformRepository
 }
 
-func NewPlatformRepository(repository repository.PlatformRepository) *PlatformService {
+func NewPlatformService(repository *repository.PlatformRepository) *PlatformService {
 	return &PlatformService{
 		repository: repository,
 	}
