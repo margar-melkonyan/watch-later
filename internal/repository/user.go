@@ -9,9 +9,9 @@ import (
 
 type User struct {
 	ID           uint64
-	Nickname     string
-	Firstname    string
-	Lastname     string
+	Nickname     string `validate:"required,min=3,max=255"`
+	Firstname    string `validate:"required,min=3,max=255"`
+	Lastname     string `validate:"required,min=3,max=255"`
 	Patronymic   string
 	Email        string
 	Password     string

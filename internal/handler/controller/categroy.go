@@ -3,12 +3,13 @@ package controller
 import (
 	"database/sql"
 	"encoding/json"
-	"github.com/margar-melkonyan/watch-later.git/internal/helper"
-	"github.com/margar-melkonyan/watch-later.git/internal/repository"
-	"github.com/margar-melkonyan/watch-later.git/internal/service/categories"
 	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/margar-melkonyan/watch-later.git/internal/helper"
+	"github.com/margar-melkonyan/watch-later.git/internal/repository"
+	service "github.com/margar-melkonyan/watch-later.git/internal/service/categories"
 )
 
 type CategoryController struct {
@@ -78,11 +79,6 @@ func (controller *CategoryController) GetCategoryById(w http.ResponseWriter, r *
 }
 
 func (controller *CategoryController) StoreCategory(w http.ResponseWriter, r *http.Request) {
-	type StoreCategoryRequest struct {
-		Name   string
-		UserID uint64
-	}
-
 	contentType := r.Header.Get("Content-Type")
 	if contentType != "" {
 		mediaType := strings.ToLower(strings.TrimSpace(contentType))

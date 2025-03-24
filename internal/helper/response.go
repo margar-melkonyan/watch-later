@@ -1,6 +1,8 @@
 package helper
 
-import "net/http"
+import (
+	"net/http"
+)
 
 type Response struct {
 	Data interface{} `json:"data"`
