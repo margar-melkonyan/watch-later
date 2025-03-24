@@ -22,6 +22,7 @@ func NewAuthService(repository *repository.UserRepository) *AuthService {
 }
 
 func (a *AuthService) SignIn(repository *repository.User) (string, error) {
+
 	return "", nil
 }
 

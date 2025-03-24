@@ -50,7 +50,35 @@ func (a *AuthController) SignUp(w http.ResponseWriter, r *http.Request) {
 	err = validate.Struct(userForm)
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
+		errs := err.(validator.ValidationErrors)
+
+		var customMessages = map[string]string{
+			"required": "The {field} field is required.",
+			"email":    "The {field} must be a valid email address.",
+			"min":      "The {field} must be at least {param} characters long.",
+			"max":      "The {field} must be at most {param} characters long.",
+			"gte":      "The {field} must be greater than or equal to {param}.",
+			"lte":      "The {field} must be less than or equal to {param}.",
+		}
+
+		humanReadableError := make(map[string]interface{})
+
+		for _, err := range errs {
+			var res string
+			res = strings.ReplaceAll(
+				customMessages[err.Tag()],
+				"{field}", strings.ToLower(err.Field()),
+			)
+			if err.Param() != "" {
+				res = strings.ReplaceAll(res, "{param}", err.Param())
+			}
+
+			humanReadableError[strings.ToLower(err.Field())] = res
+		}
+
+		jsonError, _ := json.Marshal(humanReadableError)
+
+		http.Error(w, string(jsonError), http.StatusUnprocessableEntity)
 		return
 	}
 

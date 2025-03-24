@@ -14,7 +14,7 @@ type User struct {
 	Lastname     string `validate:"required,min=3,max=255"`
 	Patronymic   string
 	Email        string
-	Password     string
+	Password     string `validate:"required,min=8,max=32"`
 	RefreshToken string
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
