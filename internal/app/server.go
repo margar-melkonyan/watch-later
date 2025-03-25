@@ -43,6 +43,7 @@ func RunApplication() {
 
 	stack := middleware.Stack(
 		middleware.Logging,
+		middleware.SetLocale,
 	)
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%s", os.Getenv("SERVER_PORT")),

@@ -1,12 +1,12 @@
 package eng
 
 var messages = map[string]string{
-	"required": "Поле {field} обязательно для заполнения.",
-	"email":    "Поле {field} должно быть корректным адресом электронной почты.",
-	"min":      "Поле {field} должно содержать не менее {param} символов.",
-	"max":      "Поле {field} должно содержать не более {param} символов.",
-	"gte":      "Поле {field} должно быть больше или равно {param}.",
-	"lte":      "Поле {field} должно быть меньше или равно {param}.",
+	"required": "The {field} field is required.",
+	"email":    "The {field} must be a valid email address.",
+	"min":      "The {field} must be at least {param} characters long.",
+	"max":      "The {field} must be at most {param} characters long.",
+	"gte":      "The {field} must be greater than or equal to {param}.",
+	"lte":      "The {field} must be less than or equal to {param}.",
 }
 
 func GetMessages() map[string]string {
