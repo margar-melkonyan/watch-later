@@ -1,31 +1,41 @@
 package helper
 
 import (
+	"encoding/json"
 	"net/http"
 )
 
 type Response struct {
-	Data interface{} `json:"data"`
+	Data     any               `json:"data"`
+	Messages map[string]string `json:"messages"`
 }
 
-type ErrorResponse struct {
+type MessageResponse struct {
 	Message string `json:"message"`
 }
 
 func SendResponse(
 	w http.ResponseWriter,
-	err error,
-	errCode int,
 	code int,
-	data []byte,
+	data Response,
 ) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
-
+	response, err := json.Marshal(data)
 	if err != nil {
-		w.WriteHeader(errCode)
-		_, _ = w.Write([]byte(err.Error()))
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	_, _ = w.Write(data)
+	w.Write(response)
+}
+
+func SendError(w http.ResponseWriter, code int, message MessageResponse) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
+	response, err := json.Marshal(message)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Write(response)
 }

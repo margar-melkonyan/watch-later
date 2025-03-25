@@ -28,57 +28,48 @@ func (a *AuthController) SignUp(w http.ResponseWriter, r *http.Request) {
 	contentType := r.Header.Get("content-type")
 	if contentType != "" &&
 		strings.ToLower(strings.TrimSpace(contentType)) != "application/json" {
-		w.WriteHeader(http.StatusBadRequest)
+		helper.SendError(w, http.StatusBadRequest, helper.MessageResponse{
+			Message: "not valid content-type",
+		})
 		return
 	}
-	var userForm repository.User
 	r.Body = http.MaxBytesReader(w, r.Body, 1024*1024*10)
-	err := json.NewDecoder(r.Body).Decode(&userForm)
-	if err != nil && err == io.EOF {
-		json, err := json.Marshal(helper.Response{
-			Data: "Заполните все необходимые поля",
-		})
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
+	defer r.Body.Close()
+
+	var userForm repository.User
+
+	if err := json.NewDecoder(r.Body).Decode(&userForm); err != nil {
+		if err == io.EOF {
+			helper.SendError(w, http.StatusBadRequest, helper.MessageResponse{
+				Message: "not valid json",
+			})
 			return
 		}
-		http.Error(w, string(json), http.StatusBadRequest)
+
+		helper.SendError(w, http.StatusBadRequest, helper.MessageResponse{
+			Message: err.Error(),
+		})
 		return
 	}
 
 	validate := validator.New()
-	err = validate.Struct(userForm)
+	err := validate.Struct(userForm)
 
 	if err != nil {
 		errs := err.(validator.ValidationErrors)
 
-		var customMessages = map[string]string{
-			"required": "The {field} field is required.",
-			"email":    "The {field} must be a valid email address.",
-			"min":      "The {field} must be at least {param} characters long.",
-			"max":      "The {field} must be at most {param} characters long.",
-			"gte":      "The {field} must be greater than or equal to {param}.",
-			"lte":      "The {field} must be less than or equal to {param}.",
+		humanReadableError, err := helper.LocalizedValidationMessages(r.Context(), errs)
+		if err != nil {
+			helper.SendError(w, http.StatusInternalServerError, helper.MessageResponse{
+				Message: err.Error(),
+			})
+			return
 		}
 
-		humanReadableError := make(map[string]interface{})
-
-		for _, err := range errs {
-			var res string
-			res = strings.ReplaceAll(
-				customMessages[err.Tag()],
-				"{field}", strings.ToLower(err.Field()),
-			)
-			if err.Param() != "" {
-				res = strings.ReplaceAll(res, "{param}", err.Param())
-			}
-
-			humanReadableError[strings.ToLower(err.Field())] = res
-		}
-
-		jsonError, _ := json.Marshal(humanReadableError)
-
-		http.Error(w, string(jsonError), http.StatusUnprocessableEntity)
+		helper.SendResponse(w, http.StatusUnprocessableEntity, helper.Response{
+			Data:     []string{},
+			Messages: humanReadableError,
+		})
 		return
 	}
 
