@@ -1,8 +1,10 @@
 package service
 
 import (
-	"fmt"
+	"os"
+	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/margar-melkonyan/watch-later.git/internal/common"
 	"github.com/margar-melkonyan/watch-later.git/internal/repository"
 	"golang.org/x/crypto/bcrypt"
@@ -29,10 +31,32 @@ func (a *AuthService) SignIn(user *common.SignInUser) (map[string]string, error)
 	if err != nil {
 		return nil, err
 	}
+	s := os.Getenv("JWT_ACCESS_TOKEN_DURATION")
 
-	fmt.Println(currentUser)
+	duration, err := time.ParseDuration(s)
+	if err != nil {
+		return nil, err
+	}
 
-	return nil, nil
+	payload := jwt.MapClaims{
+		"sub": map[string]interface{}{
+			"id":       currentUser.ID,
+			"email":    currentUser.Email,
+			"nickname": currentUser.Nickname,
+		},
+		"exp": time.Now().Add(duration).Unix(),
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, payload)
+	jwtSecret := []byte("very-test")
+	t, err := token.SignedString(jwtSecret)
+	if err != nil {
+		return nil, err
+	}
+
+	return map[string]string{
+		"token": t,
+	}, nil
 }
 
 func (a *AuthService) SignUp(user *repository.User) error {

@@ -129,7 +129,7 @@ func (a *AuthController) SignIn(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	_, err = a.authService.SignIn(&userForm)
+	tokens, err := a.authService.SignIn(&userForm)
 
 	if err != nil {
 		helper.SendError(w, http.StatusUnauthorized, helper.MessageResponse{
@@ -137,6 +137,10 @@ func (a *AuthController) SignIn(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+
+	helper.SendResponse(w, http.StatusOK, helper.Response{
+		Data: tokens,
+	})
 
 }
 
