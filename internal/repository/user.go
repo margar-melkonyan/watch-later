@@ -56,7 +56,7 @@ func (r *UserRepository) getUserByQuery(query string, arg interface{}) (*User, e
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, nil
+			return nil, sql.ErrNoRows
 		}
 		return nil, err
 	}
@@ -79,10 +79,19 @@ func (r *UserRepository) GetByNickname(nickname string) (*User, error) {
 }
 
 func (r *UserRepository) GetByEmail(email string) (*User, error) {
-	return r.getUserByQuery(
+	user, err := r.getUserByQuery(
 		"SELECT * FROM users WHERE email=$1 AND deleted_at IS NULL",
 		email,
 	)
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, errors.New("user not found")
+		}
+		return nil, err // Любая другая ошибка (например, проблема с БД)
+	}
+
+	return user, nil
 }
 
 func (r *UserRepository) Create(user *User) error {

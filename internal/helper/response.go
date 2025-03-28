@@ -6,8 +6,8 @@ import (
 )
 
 type Response struct {
-	Data     any               `json:"data"`
-	Messages map[string]string `json:"messages"`
+	Data     any               `json:"data,omitempty"`
+	Messages map[string]string `json:"messages,omitempty"`
 }
 
 type MessageResponse struct {
