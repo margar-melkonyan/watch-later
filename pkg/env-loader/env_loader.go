@@ -11,7 +11,7 @@ import (
 func MustLoad() error {
 	ex, _ := os.Getwd()
 
-	err := godotenv.Load(fmt.Sprintf("%s/configs/.env", ex))
+	err := godotenv.Load(fmt.Sprintf("%s/.env", ex))
 
 	if err != nil {
 		return err

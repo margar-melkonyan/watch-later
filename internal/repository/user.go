@@ -13,7 +13,7 @@ type User struct {
 	Firstname    string `validate:"required,min=3,max=255"`
 	Lastname     string `validate:"required,min=3,max=255"`
 	Patronymic   string
-	Email        string
+	Email        string `validate:"required,min=8,max=32"`
 	Password     string `validate:"required,min=8,max=32"`
 	RefreshToken string
 	CreatedAt    time.Time
@@ -56,7 +56,7 @@ func (r *UserRepository) getUserByQuery(query string, arg interface{}) (*User, e
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, nil
+			return nil, sql.ErrNoRows
 		}
 		return nil, err
 	}
@@ -79,10 +79,19 @@ func (r *UserRepository) GetByNickname(nickname string) (*User, error) {
 }
 
 func (r *UserRepository) GetByEmail(email string) (*User, error) {
-	return r.getUserByQuery(
+	user, err := r.getUserByQuery(
 		"SELECT * FROM users WHERE email=$1 AND deleted_at IS NULL",
 		email,
 	)
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, errors.New("user not found")
+		}
+		return nil, err // Любая другая ошибка (например, проблема с БД)
+	}
+
+	return user, nil
 }
 
 func (r *UserRepository) Create(user *User) error {
@@ -117,14 +126,15 @@ func (r *UserRepository) Create(user *User) error {
 func (r *UserRepository) Update(user *User, id uint64) error {
 	result, err := r.db.Exec(
 		`UPDATE users 
-			   SET nickname=$1, first_name=$2, last_name=$3, patronymic_name=$4, email=$5, password=$6, updated_at=now() 
-               WHERE id=$7 AND deleted_at IS NULL`,
+			   SET nickname=$1, first_name=$2, last_name=$3, patronymic_name=$4, email=$5, password=$6, refresh_token=$7, updated_at=now() 
+               WHERE id=$8 AND deleted_at IS NULL`,
 		user.Nickname,
 		user.Firstname,
 		user.Lastname,
 		user.Patronymic,
 		user.Email,
 		user.Password,
+		user.RefreshToken,
 		id,
 	)
 

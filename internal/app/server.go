@@ -1,12 +1,15 @@
 package app
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log"
 	"log/slog"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/margar-melkonyan/watch-later.git/internal/handler/middleware"
 	"github.com/margar-melkonyan/watch-later.git/internal/router"
@@ -42,6 +45,7 @@ func RunApplication() {
 	slog.Debug("Successfully connected to the db.")
 
 	stack := middleware.Stack(
+		middleware.AuthMiddleware,
 		middleware.Logging,
 		middleware.SetLocale,
 	)
@@ -50,11 +54,22 @@ func RunApplication() {
 		Handler: stack(router.NewRouter(db)),
 	}
 
-	slog.Info(fmt.Sprintf(
-		"The server running on port: %s",
-		os.Getenv("SERVER_PORT"),
-	))
-	if err := server.ListenAndServe(); err != nil {
-		log.Fatal(err.Error())
-	}
+	ctx, stop := signal.NotifyContext(
+		context.Background(),
+		syscall.SIGINT,
+		syscall.SIGTERM,
+	)
+	defer stop()
+
+	go func() {
+		slog.Info(fmt.Sprintf(
+			"The server running on port: %s",
+			os.Getenv("SERVER_PORT"),
+		))
+		if err := server.ListenAndServe(); err != nil {
+			log.Fatal(err.Error())
+		}
+	}()
+
+	<-ctx.Done()
 }

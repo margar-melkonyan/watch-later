@@ -2,15 +2,17 @@ package app
 
 import (
 	"fmt"
+	"log"
+	"log/slog"
+	"os"
+
 	"github.com/golang-migrate/migrate"
 	_ "github.com/golang-migrate/migrate/database/postgres"
 	_ "github.com/golang-migrate/migrate/source/file"
-	"log"
-	"os"
 )
 
 func RunMigrations() {
-	fmt.Println("Running migrations...")
+	slog.Info("Running migrations...")
 	m, err := migrate.New(
 		os.Getenv("MIGRATION_PATH_URL"),
 		fmt.Sprintf(
@@ -29,5 +31,5 @@ func RunMigrations() {
 	}
 
 	_ = m.Up()
-	fmt.Println("Migration applied successfully")
+	slog.Info("Migration applied successfully")
 }
