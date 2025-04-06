@@ -6,4 +6,10 @@ type SignInUser struct {
 }
 
 type ResponseUser struct {
+	ID         uint64 `json:"id"`
+	Email      string `json:"email"`
+	Firstname  string `json:"firstname"`
+	Lastname   string `json:"lastname"`
+	Patronymic string `json:"patronymic"`
+	Nickname   string `json:"nickname"`
 }

@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -50,13 +52,15 @@ func parseToken(token string, tokenType string) (*Claims, error) {
 	return &claims, nil
 }
 
-func CheckTokenIsNotExpired(token string, tokenType string) (bool, error) {
-	_, err := parseToken(token, tokenType)
+func CheckTokenIsNotExpired(token string, tokenType string) (*Claims, error) {
+	token = strings.TrimSpace(strings.ReplaceAll(token, "Bearer ", ""))
+
+	claims, err := parseToken(token, tokenType)
 	if err != nil {
-		return true, err
+		return nil, err
 	}
 
-	return false, nil
+	return claims, nil
 }
 
 func getToken(user repository.User, tokenType string) (string, error) {
@@ -96,26 +100,40 @@ func (a *AuthService) SignIn(user *common.SignInUser) (map[string]string, error)
 		return nil, err
 	}
 
-	t, err := getToken(*currentUser, "JWT_ACCESS_TOKEN")
+	if err = bcrypt.CompareHashAndPassword([]byte(currentUser.Password), []byte(user.Password)); err != nil {
+		return nil, errors.New("password is not valid")
+	}
+
+	accessToken, err := getToken(*currentUser, "JWT_ACCESS_TOKEN")
 	if err != nil {
 		return nil, err
 	}
 
-	rt, err := getToken(*currentUser, "JWT_REFRESH_TOKEN")
+	refreshToken, err := getToken(*currentUser, "JWT_REFRESH_TOKEN")
 	if err != nil {
 		return nil, err
 	}
-	currentUser.RefreshToken = rt
+
+	currentUser.RefreshToken = refreshToken
 	a.repository.Update(currentUser, currentUser.ID)
 
 	return map[string]string{
-		"token":         t,
-		"refresh_token": rt,
+		"token":         accessToken,
+		"refresh_token": refreshToken,
 	}, nil
 }
 
 func (a *AuthService) SignUp(user *repository.User) error {
-	password, err := bcrypt.GenerateFromPassword([]byte(user.Password), 12)
+	if _, err := a.repository.GetByEmail(user.Email); err == nil {
+		return errors.New("user with this email already exists")
+	}
+
+	power, err := strconv.Atoi(os.Getenv("BCRYPT_POWER"))
+	if err != nil {
+		return errors.New("something went wrong")
+	}
+
+	password, err := bcrypt.GenerateFromPassword([]byte(user.Password), power)
 	if err != nil {
 		return err
 	}
@@ -124,6 +142,55 @@ func (a *AuthService) SignUp(user *repository.User) error {
 	return a.repository.Create(user)
 }
 
-func (a *AuthService) SignOut(user *repository.User) error {
-	return nil
+func (a *AuthService) CurrentUser(email string) (*common.ResponseUser, error) {
+	user, err := a.repository.GetByEmail(email)
+	if err != nil {
+		return nil, err
+	}
+
+	responseUser := &common.ResponseUser{
+		ID:         user.ID,
+		Email:      user.Email,
+		Firstname:  user.Firstname,
+		Lastname:   user.Lastname,
+		Patronymic: user.Patronymic,
+		Nickname:   user.Nickname,
+	}
+
+	return responseUser, nil
+}
+
+func (a *AuthService) RefreshToken(token string) (map[string]string, error) {
+	token = strings.TrimSpace(strings.ReplaceAll(token, "Bearer ", ""))
+	claims, err := parseToken(token, "JWT_REFRESH_TOKEN")
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := a.repository.GetByEmail(claims.Sub.Email)
+
+	if user.RefreshToken != token {
+		return nil, errors.New("not valid refresh token")
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	newToken, err := getToken(*user, "JWT_ACCESS_TOKEN")
+	if err != nil {
+		return nil, err
+	}
+	newRefreshToken, err := getToken(*user, "JWT_REFRESH_TOKEN")
+	if err != nil {
+		return nil, err
+	}
+
+	user.RefreshToken = newRefreshToken
+
+	a.repository.Update(user, user.ID)
+	return map[string]string{
+		"token":         newToken,
+		"refresh_token": newRefreshToken,
+	}, nil
 }

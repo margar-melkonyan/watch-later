@@ -80,10 +80,11 @@ func (a *AuthController) SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ok := a.authService.SignUp(&userForm)
-
-	if ok != nil {
-		w.WriteHeader(http.StatusBadRequest)
+	err = a.authService.SignUp(&userForm)
+	if err != nil {
+		helper.SendError(w, http.StatusConflict, helper.MessageResponse{
+			Message: err.Error(),
+		})
 		return
 	}
 }
@@ -127,10 +128,10 @@ func (a *AuthController) SignIn(w http.ResponseWriter, r *http.Request) {
 		helper.SendResponse(w, http.StatusUnprocessableEntity, helper.Response{
 			Data: humanReadableErrors,
 		})
+		return
 	}
 
 	tokens, err := a.authService.SignIn(&userForm)
-
 	if err != nil {
 		helper.SendError(w, http.StatusUnauthorized, helper.MessageResponse{
 			Message: err.Error(),
@@ -143,6 +144,40 @@ func (a *AuthController) SignIn(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (a *AuthController) SignOut(w http.ResponseWriter, r *http.Request) {
+func (a *AuthController) CurrentUser(w http.ResponseWriter, r *http.Request) {
+	currentUserEmail, ok := r.Context().Value("user_email").(string)
+	if !ok {
+		helper.SendError(w, http.StatusConflict, helper.MessageResponse{
+			Message: "user not entered",
+		})
+		return
+	}
 
+	user, _ := a.authService.CurrentUser(currentUserEmail)
+
+	helper.SendResponse(w, http.StatusOK, helper.Response{
+		Data: user,
+	})
+}
+
+func (a *AuthController) RefreshToken(w http.ResponseWriter, r *http.Request) {
+	token := r.Header.Get("Authorization")
+	if token == "" {
+		helper.SendError(w, http.StatusForbidden, helper.MessageResponse{
+			Message: "You should be authorized!",
+		})
+		return
+	}
+
+	tokens, err := a.authService.RefreshToken(token)
+	if err != nil {
+		helper.SendError(w, http.StatusForbidden, helper.MessageResponse{
+			Message: err.Error(),
+		})
+		return
+	}
+
+	helper.SendResponse(w, http.StatusOK, helper.Response{
+		Data: tokens,
+	})
 }
