@@ -141,7 +141,6 @@ func (a *AuthController) SignIn(w http.ResponseWriter, r *http.Request) {
 	helper.SendResponse(w, http.StatusOK, helper.Response{
 		Data: tokens,
 	})
-
 }
 
 func (a *AuthController) SignOut(w http.ResponseWriter, r *http.Request) {

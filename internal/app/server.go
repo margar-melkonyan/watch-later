@@ -45,6 +45,7 @@ func RunApplication() {
 	slog.Debug("Successfully connected to the db.")
 
 	stack := middleware.Stack(
+		middleware.AuthMiddleware,
 		middleware.Logging,
 		middleware.SetLocale,
 	)
