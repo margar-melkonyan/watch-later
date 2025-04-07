@@ -26,7 +26,7 @@ func NewAuthController(db *sql.DB) *AuthController {
 }
 
 func (a *AuthController) SignUp(w http.ResponseWriter, r *http.Request) {
-	contentType := r.Header.Get("content-type")
+	contentType := r.Header.Get("Content-Type")
 	if contentType == "" {
 		helper.SendError(w, http.StatusInternalServerError, helper.MessageResponse{
 			Message: "content-type is required",
@@ -102,6 +102,7 @@ func (a *AuthController) SignIn(w http.ResponseWriter, r *http.Request) {
 			Message: "not valid content-type",
 		})
 	}
+
 	r.Body = http.MaxBytesReader(w, r.Body, 10*1024*1024)
 	defer r.Body.Close()
 

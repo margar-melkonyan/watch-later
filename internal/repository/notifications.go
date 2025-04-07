@@ -19,7 +19,7 @@ type Notification struct {
 }
 
 type NotificationRepositoryInterface interface {
-	GetUnreadNotifications(userID uint64) (*[]Notification, error)
+	GetUnreadNotifications(userID uint64) ([]Notification, error)
 	MarkAsReadNotification(id uint64) error
 	CreateNotification(notification *Notification) error
 }
@@ -47,7 +47,7 @@ func (payload *Payload) Scan(value interface{}) error {
 	return json.Unmarshal(bytes, payload)
 }
 
-func (r *NotificationRepository) GetUnreadNotifications(userID uint64) (*[]Notification, error) {
+func (r *NotificationRepository) GetUnreadNotifications(userID uint64) ([]Notification, error) {
 	var notifications []Notification
 	query := `SELECT id, user_id, payload, created_at FROM notifications 
               WHERE user_id=$1 AND read_at IS NULL ORDER BY created_at DESC`
@@ -66,7 +66,7 @@ func (r *NotificationRepository) GetUnreadNotifications(userID uint64) (*[]Notif
 		notifications = append(notifications, notification)
 	}
 
-	return &notifications, nil
+	return notifications, nil
 }
 
 func (r *NotificationRepository) MarkAsReadNotification(id uint64) error {

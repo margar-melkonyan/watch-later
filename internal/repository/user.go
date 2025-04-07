@@ -82,7 +82,7 @@ func (r *UserRepository) GetByNickname(nickname string) (*User, error) {
 func (r *UserRepository) GetByEmail(email string) (*User, error) {
 	user, err := r.getUserByQuery(
 		"SELECT * FROM users WHERE email=$1 AND deleted_at IS NULL",
-		email,
+		&email,
 	)
 
 	if err != nil {
