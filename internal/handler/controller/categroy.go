@@ -70,7 +70,9 @@ func (controller *CategoryController) StoreCategory(w http.ResponseWriter, r *ht
 	if contentType != "" {
 		mediaType := strings.ToLower(strings.TrimSpace(contentType))
 		if mediaType != "application/json" {
-			w.WriteHeader(http.StatusUnprocessableEntity)
+			helper.SendError(w, http.StatusUnprocessableEntity, helper.MessageResponse{
+				Message: "not valid content-type",
+			})
 			return
 		}
 	}

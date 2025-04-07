@@ -13,21 +13,29 @@ func NewPlatformService(repository *repository.PlatformRepository) *PlatformServ
 }
 
 func (s *PlatformService) GetPlatforms() ([]*repository.Platform, error) {
-	return nil, nil
+	platforms, err := s.repository.GetAll()
+	if platforms == nil {
+		platforms = []*repository.Platform{}
+	}
+	return platforms, err
 }
 
 func (s *PlatformService) GetPlatform(id uint64) (*repository.Platform, error) {
-	return nil, nil
+	return s.repository.Get(id)
 }
 
 func (s *PlatformService) CreatePlatform(platform *repository.Platform) error {
-	return nil
+	return s.repository.Create(platform)
 }
 
-func (s *PlatformService) UpdatePlatform(id uint64, platform *repository.Platform) error {
-	return nil
+func (s *PlatformService) UpdatePlatform(platform *repository.Platform, id uint64) error {
+	return s.repository.Update(platform, id)
 }
 
 func (s *PlatformService) DeletePlatform(id uint64) error {
-	return nil
+	return s.repository.Delete(id)
+}
+
+func (s *PlatformService) RestorePlatform(id uint64) error {
+	return s.repository.Restore(id)
 }

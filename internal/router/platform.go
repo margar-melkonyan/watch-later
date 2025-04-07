@@ -2,22 +2,22 @@ package router
 
 import (
 	"database/sql"
-	"github.com/margar-melkonyan/watch-later.git/internal/repository"
-	service "github.com/margar-melkonyan/watch-later.git/internal/service/platforms"
 	"net/http"
+
+	"github.com/margar-melkonyan/watch-later.git/internal/handler/controller"
 )
 
 func platformsRoutes(db *sql.DB) *http.ServeMux {
 	platforms := http.NewServeMux()
-	platformRepo := repository.NewPlatformRepository(db)
-	_ = service.NewPlatformService(platformRepo)
 
-	platforms.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {})
-	platforms.HandleFunc("GET /{id}", func(w http.ResponseWriter, r *http.Request) {})
-	platforms.HandleFunc("POST /", func(w http.ResponseWriter, r *http.Request) {})
-	platforms.HandleFunc("POST /{id}/restore", func(w http.ResponseWriter, r *http.Request) {})
-	platforms.HandleFunc("PUT /{id}", func(w http.ResponseWriter, r *http.Request) {})
-	platforms.HandleFunc("DELETE /{id}", func(w http.ResponseWriter, r *http.Request) {})
+	platformController := controller.NewPlatformController(db)
+
+	platforms.HandleFunc("GET /", platformController.GetPlatforms)
+	platforms.HandleFunc("GET /{id}", platformController.GetPlatform)
+	platforms.HandleFunc("POST /", platformController.StorePlatform)
+	platforms.HandleFunc("POST /{id}/restore", platformController.RestorePlatform)
+	platforms.HandleFunc("PUT /{id}", platformController.UpdatePlatform)
+	platforms.HandleFunc("DELETE /{id}", platformController.DeletePlatform)
 
 	return platforms
 }

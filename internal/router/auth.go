@@ -5,13 +5,9 @@ import (
 	"net/http"
 
 	"github.com/margar-melkonyan/watch-later.git/internal/handler/controller"
-	"github.com/margar-melkonyan/watch-later.git/internal/repository"
-	service "github.com/margar-melkonyan/watch-later.git/internal/service/users"
 )
 
 func authRoutes(db *sql.DB) *http.ServeMux {
-	userRepo := repository.NewUserRepository(db)
-	_ = service.NewUserService(userRepo)
 	auth := http.NewServeMux()
 	authController := controller.NewAuthController(db)
 
