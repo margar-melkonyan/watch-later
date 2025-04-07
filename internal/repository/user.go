@@ -8,17 +8,18 @@ import (
 )
 
 type User struct {
-	ID           uint64
-	Nickname     string `validate:"required,min=3,max=255"`
-	Firstname    string `validate:"required,min=3,max=255"`
-	Lastname     string `validate:"required,min=3,max=255"`
-	Patronymic   string
-	Email        string `validate:"required,min=8,max=32"`
-	Password     string `validate:"required,min=8,max=32"`
-	RefreshToken string
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
-	DeletedAt    *time.Time
+	ID                   uint64
+	Nickname             string `validate:"required,min=3,max=255"`
+	Firstname            string `validate:"required,min=3,max=255"`
+	Lastname             string `validate:"required,min=3,max=255"`
+	Patronymic           string
+	Email                string `validate:"required,email,min=8,max=32"`
+	Password             string `validate:"required,eqfield=PasswordConfirmation,min=8,max=32"`
+	PasswordConfirmation string `json:"password_confirmation" validate:"required,min=8,max=32"`
+	RefreshToken         string
+	CreatedAt            time.Time
+	UpdatedAt            time.Time
+	DeletedAt            *time.Time
 }
 
 type UserRepositoryInterface interface {
@@ -81,7 +82,7 @@ func (r *UserRepository) GetByNickname(nickname string) (*User, error) {
 func (r *UserRepository) GetByEmail(email string) (*User, error) {
 	user, err := r.getUserByQuery(
 		"SELECT * FROM users WHERE email=$1 AND deleted_at IS NULL",
-		email,
+		&email,
 	)
 
 	if err != nil {

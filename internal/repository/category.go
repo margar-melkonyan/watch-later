@@ -9,8 +9,8 @@ import (
 
 type Category struct {
 	ID        int64      `json:"id"`
-	UserID    int64      `json:"user_id"`
-	Name      string     `json:"name"`
+	UserID    int64      `json:"user_id" validate:"required,numeric"`
+	Name      string     `json:"name" validate:"required,alphanum"`
 	CreatedAt time.Time  `json:"created_at"`
 	UpdatedAt time.Time  `json:"-"`
 	DeletedAt *time.Time `json:"-"`

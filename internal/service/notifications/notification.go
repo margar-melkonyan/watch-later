@@ -1,19 +1,48 @@
 package service
 
-import "github.com/margar-melkonyan/watch-later.git/internal/repository"
+import (
+	"context"
+
+	"github.com/margar-melkonyan/watch-later.git/internal/repository"
+)
 
 type NotificationService struct {
-	repository *repository.NotificationRepository
+	notificationRepository *repository.NotificationRepository
+	userRepository         *repository.UserRepository
 }
 
-func NewNotificationService(repository *repository.NotificationRepository) *NotificationService {
+func NewNotificationService(
+	notificationRepository *repository.NotificationRepository,
+	userRepository *repository.UserRepository,
+) *NotificationService {
 	return &NotificationService{
-		repository: repository,
+		notificationRepository: notificationRepository,
+		userRepository:         userRepository,
 	}
 }
 
-func (s *NotificationService) GetUnreadNotifications() {}
+func (s *NotificationService) GetUnreadNotifications(ctx context.Context) ([]repository.Notification, error) {
+	email := ctx.Value("user_email").(string)
+	user, err := s.userRepository.GetByEmail(email)
 
-func (s *NotificationService) MarkAsReadNotification() {}
+	if err != nil {
+		return nil, err
+	}
+	notifications, err := s.notificationRepository.GetUnreadNotifications(user.ID)
 
-func (s *NotificationService) CreateNotification() {}
+	return notifications, err
+}
+
+func (s *NotificationService) MarkAsReadNotification(id uint64) error {
+	return s.notificationRepository.MarkAsReadNotification(id)
+}
+
+func (s *NotificationService) MultipleMarkAsRead(ids []uint64) {
+	for _, id := range ids {
+		s.notificationRepository.MarkAsReadNotification(id)
+	}
+}
+
+func (s *NotificationService) CreateNotification(notification repository.Notification) error {
+	return s.notificationRepository.CreateNotification(&notification)
+}

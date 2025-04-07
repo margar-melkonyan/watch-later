@@ -26,7 +26,7 @@ func NewAuthController(db *sql.DB) *AuthController {
 }
 
 func (a *AuthController) SignUp(w http.ResponseWriter, r *http.Request) {
-	contentType := r.Header.Get("content-type")
+	contentType := r.Header.Get("Content-Type")
 	if contentType == "" {
 		helper.SendError(w, http.StatusInternalServerError, helper.MessageResponse{
 			Message: "content-type is required",
@@ -65,7 +65,6 @@ func (a *AuthController) SignUp(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		errs := err.(validator.ValidationErrors)
-
 		humanReadableError, err := helper.LocalizedValidationMessages(r.Context(), errs)
 		if err != nil {
 			helper.SendError(w, http.StatusInternalServerError, helper.MessageResponse{
@@ -74,7 +73,7 @@ func (a *AuthController) SignUp(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		helper.SendResponse(w, http.StatusUnprocessableEntity, helper.Response{
+		helper.SendResponse(w, http.StatusUnprocessableEntity, &helper.Response{
 			Messages: humanReadableError,
 		})
 		return
@@ -103,6 +102,7 @@ func (a *AuthController) SignIn(w http.ResponseWriter, r *http.Request) {
 			Message: "not valid content-type",
 		})
 	}
+
 	r.Body = http.MaxBytesReader(w, r.Body, 10*1024*1024)
 	defer r.Body.Close()
 
@@ -125,7 +125,7 @@ func (a *AuthController) SignIn(w http.ResponseWriter, r *http.Request) {
 			})
 			return
 		}
-		helper.SendResponse(w, http.StatusUnprocessableEntity, helper.Response{
+		helper.SendResponse(w, http.StatusUnprocessableEntity, &helper.Response{
 			Data: humanReadableErrors,
 		})
 		return
@@ -139,7 +139,7 @@ func (a *AuthController) SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	helper.SendResponse(w, http.StatusOK, helper.Response{
+	helper.SendResponse(w, http.StatusOK, &helper.Response{
 		Data: tokens,
 	})
 }
@@ -155,7 +155,7 @@ func (a *AuthController) CurrentUser(w http.ResponseWriter, r *http.Request) {
 
 	user, _ := a.authService.CurrentUser(currentUserEmail)
 
-	helper.SendResponse(w, http.StatusOK, helper.Response{
+	helper.SendResponse(w, http.StatusOK, &helper.Response{
 		Data: user,
 	})
 }
@@ -177,7 +177,7 @@ func (a *AuthController) RefreshToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	helper.SendResponse(w, http.StatusOK, helper.Response{
+	helper.SendResponse(w, http.StatusOK, &helper.Response{
 		Data: tokens,
 	})
 }

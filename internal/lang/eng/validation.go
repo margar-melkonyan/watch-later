@@ -7,6 +7,7 @@ var messages = map[string]string{
 	"max":      "The {field} must be at most {param} characters long.",
 	"gte":      "The {field} must be greater than or equal to {param}.",
 	"lte":      "The {field} must be less than or equal to {param}.",
+	"eqfield":  "The field {field} must be equal to the field {param}.",
 }
 
 func GetMessages() map[string]string {

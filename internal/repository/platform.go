@@ -7,11 +7,11 @@ import (
 )
 
 type Platform struct {
-	ID        uint64
-	Name      string
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt *time.Time
+	ID        uint64     `json:"id"`
+	Name      string     `json:"name" validate:"required,alphanum,min=8,max=32"`
+	CreatedAt time.Time  `json:"-"`
+	UpdatedAt time.Time  `json:"-"`
+	DeletedAt *time.Time `json:"-"`
 }
 
 type PlatformRepositoryInterface interface {
@@ -20,6 +20,7 @@ type PlatformRepositoryInterface interface {
 	Create(p *Platform) error
 	Update(platform *Platform, id uint64) error
 	Delete(id uint64) error
+	Restore(id uint64) error
 }
 
 type PlatformRepository struct {
@@ -34,9 +35,9 @@ func NewPlatformRepository(db *sql.DB) *PlatformRepository {
 
 func (r *PlatformRepository) Get(id uint64) (*Platform, error) {
 	var platform Platform
-	query := "SELECT id, name FROM platforms WHERE id = $1 AND deleted_at IS NULL"
+	query := "SELECT id, name FROM platforms WHERE id=$1 AND deleted_at IS NULL"
 	row := r.db.QueryRow(query, id)
-	err := row.Scan(platform.ID, platform.Name)
+	err := row.Scan(&platform.ID, &platform.Name)
 
 	if err != nil {
 		return nil, err
@@ -117,6 +118,24 @@ func (r *PlatformRepository) Delete(id uint64) error {
 
 	if rowsAffected == 0 {
 		return errors.New("platform was not deleted")
+	}
+
+	return nil
+}
+
+func (r *PlatformRepository) Restore(id uint64) error {
+	query := "UPDATE platforms SET deleted_at=NULL WHERE id=$1"
+	result, err := r.db.Exec(query, id)
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return errors.New("platforms was not restored")
 	}
 
 	return nil
