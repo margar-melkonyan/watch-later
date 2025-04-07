@@ -21,6 +21,10 @@ func (s *CategoryService) GetCategories() ([]*repository.Category, error) {
 		return nil, err
 	}
 
+	if categories == nil {
+		categories = []*repository.Category{}
+	}
+
 	return categories, nil
 }
 

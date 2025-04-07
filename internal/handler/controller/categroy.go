@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/margar-melkonyan/watch-later.git/internal/helper"
 	"github.com/margar-melkonyan/watch-later.git/internal/repository"
 	service "github.com/margar-melkonyan/watch-later.git/internal/service/categories"
@@ -26,32 +27,21 @@ func NewCategoryController(db *sql.DB) *CategoryController {
 func (controller *CategoryController) GetCategories(w http.ResponseWriter, r *http.Request) {
 	categories, err := controller.service.GetCategories()
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
+		helper.SendError(w, http.StatusNotFound, helper.MessageResponse{})
 		return
 	}
 
-	data := helper.Response{
+	helper.SendResponse(w, http.StatusOK, &helper.Response{
 		Data: categories,
-	}
-
-	response, err := json.Marshal(data)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	_, err = w.Write(response)
+	})
 }
 
 func (controller *CategoryController) GetCategoryById(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.ParseUint(r.PathValue("id"), 0, 64)
-
 	if err != nil {
 		helper.SendError(
 			w, http.StatusInternalServerError, helper.MessageResponse{
-				Message: err.Error(),
+				Message: "is not valid id",
 			},
 		)
 		return
@@ -68,12 +58,10 @@ func (controller *CategoryController) GetCategoryById(w http.ResponseWriter, r *
 		return
 	}
 
-	data := helper.Response{
-		Data: category,
-	}
-
 	helper.SendResponse(
-		w, http.StatusOK, data,
+		w, http.StatusOK, &helper.Response{
+			Data: category,
+		},
 	)
 }
 
@@ -100,6 +88,23 @@ func (controller *CategoryController) StoreCategory(w http.ResponseWriter, r *ht
 		return
 	}
 
+	validate := validator.New()
+	err = validate.Struct(form)
+	if err != nil {
+		errs := err.(validator.ValidationErrors)
+		humanReadeable, err := helper.LocalizedValidationMessages(r.Context(), errs)
+		if err != nil {
+			helper.SendError(w, http.StatusConflict, helper.MessageResponse{
+				Message: err.Error(),
+			})
+			return
+		}
+		helper.SendResponse(w, http.StatusUnprocessableEntity, &helper.Response{
+			Data: humanReadeable,
+		})
+		return
+	}
+
 	if err := controller.service.CreateCategory(&form); err != nil {
 		helper.SendError(
 			w, http.StatusInternalServerError, helper.MessageResponse{
@@ -110,7 +115,7 @@ func (controller *CategoryController) StoreCategory(w http.ResponseWriter, r *ht
 	}
 
 	helper.SendResponse(
-		w, http.StatusOK, helper.Response{},
+		w, http.StatusCreated, nil,
 	)
 }
 

@@ -17,16 +17,18 @@ type MessageResponse struct {
 func SendResponse(
 	w http.ResponseWriter,
 	code int,
-	data Response,
+	data *Response,
 ) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
-	response, err := json.Marshal(data)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+	if data != nil {
+		response, err := json.Marshal(data)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.Write(response)
 	}
-	w.Write(response)
 }
 
 func SendError(w http.ResponseWriter, code int, message MessageResponse) {
