@@ -1,2 +1,2 @@
 # watch-later
-This application only works with go 1.22.9 because it uses new features added in that version for the package "net/http"
+This application will work correctly only version go 1.22.9 or above because i use new net/http features here
