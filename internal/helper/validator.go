@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/iancoleman/strcase"
 	"github.com/margar-melkonyan/watch-later.git/internal/lang/eng"
 	"github.com/margar-melkonyan/watch-later.git/internal/lang/ru"
 )
@@ -16,6 +17,15 @@ func getValidationMessages(locale string) map[string]string {
 		return ru.GetMessages()
 	default:
 		return eng.GetMessages()
+	}
+}
+
+func getAttribute(locale string, attribute string) string {
+	switch locale {
+	case "ru":
+		return ru.GetAttribute(attribute)
+	default:
+		return eng.GetAttribute(attribute)
 	}
 }
 
@@ -37,13 +47,16 @@ func LocalizedValidationMessages(
 		var res string
 		res = strings.ReplaceAll(
 			validationMessages[err.Tag()],
-			"{field}", strings.ToLower(err.Field()),
+			"{field}", getAttribute(locale, strcase.ToSnake(err.Field())),
 		)
 		if err.Param() != "" {
-			res = strings.ReplaceAll(res, "{param}", err.Param())
+			res = strings.ReplaceAll(
+				res,
+				"{param}", getAttribute(locale, strcase.ToSnake(err.Param())),
+			)
 		}
 
-		validatedMessages[strings.ToLower(err.Field())] = res
+		validatedMessages[strcase.ToSnake(err.Field())] = res
 	}
 
 	return validatedMessages, nil
