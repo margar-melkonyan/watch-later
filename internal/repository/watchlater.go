@@ -7,15 +7,15 @@ import (
 )
 
 type WatchLater struct {
-	ID         uint64
-	UserID     uint64
-	CategoryID uint64
-	PlatformID uint64
-	Name       string
-	Text       string
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
-	DeletedAt  *time.Time
+	ID         uint64     `json:"id"`
+	UserID     uint64     `json:"user_id" validate:"required,min=1,numeric"`
+	CategoryID uint64     `json:"category_id" validate:"required,min=1,numeric"`
+	PlatformID uint64     `json:"platform_id" validate:"required,min=1,numeric"`
+	Name       string     `json:"name" validate:"required,min=4"`
+	Text       string     `json:"text" validate:"required,min=4"`
+	CreatedAt  time.Time  `json:"created_at"`
+	UpdatedAt  time.Time  `json:"-"`
+	DeletedAt  *time.Time `json:"-"`
 }
 
 type WatchLaterRepositoryInterface interface {

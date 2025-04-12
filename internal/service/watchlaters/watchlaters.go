@@ -12,18 +12,47 @@ func NewWatchLaterService(repository *repository.WatchLaterRepository) *WatchLat
 	}
 }
 
-func (s *WatchLaterService) GetWatchLater(perPage uint16) ([]*repository.WatchLater, error) {
-	return nil, nil
+func (s *WatchLaterService) GetWatchLater(id uint64) (*repository.WatchLater, error) {
+	return s.repository.Get(id)
 }
 
-func (s *WatchLaterService) StoreWatchLater() error {
-	return nil
+func (s *WatchLaterService) GetWatchLaters() ([]*repository.WatchLater, error) {
+	watchLaters, err := s.repository.GetAll()
+	if len(watchLaters) == 0 {
+		return []*repository.WatchLater{}, err
+	}
+
+	return watchLaters, err
 }
 
-func (s *WatchLaterService) UpdateWatchLater(id uint64) error {
-	return nil
+func (s *WatchLaterService) GetWatchLatersByCategory(cateogyrID uint64) ([]*repository.WatchLater, error) {
+	watchLaters, err := s.repository.GetByCategory(cateogyrID)
+
+	if len(watchLaters) == 0 {
+		watchLaters = []*repository.WatchLater{}
+	}
+
+	return watchLaters, err
+}
+
+func (s *WatchLaterService) GetWatchLatersByPlatform(platformID uint64) ([]*repository.WatchLater, error) {
+	watchLaters, err := s.repository.GetByPlatform(platformID)
+
+	if len(watchLaters) == 0 {
+		watchLaters = []*repository.WatchLater{}
+	}
+
+	return watchLaters, err
+}
+
+func (s *WatchLaterService) StoreWatchLater(form *repository.WatchLater) error {
+	return s.repository.Create(form)
+}
+
+func (s *WatchLaterService) UpdateWatchLater(form *repository.WatchLater, id uint64) error {
+	return s.repository.Update(form, id)
 }
 
 func (s *WatchLaterService) DeleteWatchLater(id uint64) error {
-	return nil
+	return s.repository.Delete(id)
 }
