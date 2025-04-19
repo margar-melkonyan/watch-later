@@ -2,8 +2,9 @@ package router
 
 import (
 	"database/sql"
-	"github.com/margar-melkonyan/watch-later.git/internal/handler/controller"
 	"net/http"
+
+	"github.com/margar-melkonyan/watch-later.git/internal/handler/controller"
 )
 
 func categoriesRoutes(db *sql.DB) *http.ServeMux {
