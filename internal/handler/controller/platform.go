@@ -64,7 +64,7 @@ func (controller *PlatformController) StorePlatform(w http.ResponseWriter, r *ht
 	if contentType != "" {
 		mediaType := strings.ToLower(strings.TrimSpace(contentType))
 		if mediaType != "application/json" {
-			helper.SendError(w, http.StatusUnprocessableEntity, helper.MessageResponse{
+			helper.SendError(w, http.StatusUnsupportedMediaType, helper.MessageResponse{
 				Message: "not valid content-type",
 			})
 			return

@@ -40,7 +40,7 @@ func (controller *CategoryController) GetCategoryById(w http.ResponseWriter, r *
 	id, err := strconv.ParseUint(r.PathValue("id"), 0, 64)
 	if err != nil {
 		helper.SendError(
-			w, http.StatusInternalServerError, helper.MessageResponse{
+			w, http.StatusUnsupportedMediaType, helper.MessageResponse{
 				Message: "is not valid id",
 			},
 		)
@@ -70,7 +70,7 @@ func (controller *CategoryController) StoreCategory(w http.ResponseWriter, r *ht
 	if contentType != "" {
 		mediaType := strings.ToLower(strings.TrimSpace(contentType))
 		if mediaType != "application/json" {
-			helper.SendError(w, http.StatusUnprocessableEntity, helper.MessageResponse{
+			helper.SendError(w, http.StatusUnsupportedMediaType, helper.MessageResponse{
 				Message: "not valid content-type",
 			})
 			return
@@ -136,9 +136,8 @@ func (controller *CategoryController) UpdateCategory(w http.ResponseWriter, r *h
 	if contentType != "" {
 		mediaType := strings.ToLower(strings.TrimSpace(contentType))
 		if mediaType != "application/json" {
-			w.WriteHeader(http.StatusUnprocessableEntity)
-			helper.SendError(w, http.StatusUnprocessableEntity, helper.MessageResponse{
-				Message: "not valid body",
+			helper.SendError(w, http.StatusUnsupportedMediaType, helper.MessageResponse{
+				Message: "not valid content-type",
 			})
 			return
 		}

@@ -28,7 +28,7 @@ func NewAuthController(db *sql.DB) *AuthController {
 func (a *AuthController) SignUp(w http.ResponseWriter, r *http.Request) {
 	contentType := r.Header.Get("Content-Type")
 	if contentType == "" {
-		helper.SendError(w, http.StatusInternalServerError, helper.MessageResponse{
+		helper.SendError(w, http.StatusUnsupportedMediaType, helper.MessageResponse{
 			Message: "content-type is required",
 		})
 		return
@@ -36,7 +36,7 @@ func (a *AuthController) SignUp(w http.ResponseWriter, r *http.Request) {
 
 	if contentType != "" &&
 		strings.ToLower(strings.TrimSpace(contentType)) != "application/json" {
-		helper.SendError(w, http.StatusBadRequest, helper.MessageResponse{
+		helper.SendError(w, http.StatusUnsupportedMediaType, helper.MessageResponse{
 			Message: "not valid content-type",
 		})
 		return
@@ -48,7 +48,7 @@ func (a *AuthController) SignUp(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.NewDecoder(r.Body).Decode(&userForm); err != nil {
 		if err == io.EOF {
-			helper.SendError(w, http.StatusBadRequest, helper.MessageResponse{
+			helper.SendError(w, http.StatusConflict, helper.MessageResponse{
 				Message: "not valid json",
 			})
 			return
@@ -91,14 +91,14 @@ func (a *AuthController) SignUp(w http.ResponseWriter, r *http.Request) {
 func (a *AuthController) SignIn(w http.ResponseWriter, r *http.Request) {
 	contentType := r.Header.Get("Content-Type")
 	if contentType == "" {
-		helper.SendError(w, http.StatusInternalServerError, helper.MessageResponse{
+		helper.SendError(w, http.StatusUnsupportedMediaType, helper.MessageResponse{
 			Message: "content type is required",
 		})
 	}
 
 	if contentType != "" &&
 		strings.TrimSpace(contentType) != "application/json" {
-		helper.SendError(w, http.StatusInternalServerError, helper.MessageResponse{
+		helper.SendError(w, http.StatusUnsupportedMediaType, helper.MessageResponse{
 			Message: "not valid content-type",
 		})
 	}
@@ -108,7 +108,7 @@ func (a *AuthController) SignIn(w http.ResponseWriter, r *http.Request) {
 
 	var userForm common.SignInUser
 	if err := json.NewDecoder(r.Body).Decode(&userForm); err != nil {
-		helper.SendError(w, http.StatusBadRequest, helper.MessageResponse{
+		helper.SendError(w, http.StatusConflict, helper.MessageResponse{
 			Message: "not valid json",
 		})
 		return
